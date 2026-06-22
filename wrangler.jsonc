@@ -1,0 +1,35 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "glo",
+  "main": "index.ts",
+  "compatibility_date": "2026-06-18",
+  "compatibility_flags": ["nodejs_compat"],
+  "ai": {
+    "binding": "AI",
+  },
+  "secrets": {
+    "required": [
+      "SLACK_CLIENT_ID",
+      "SLACK_CLIENT_SECRET",
+      "SLACK_SIGNING_SECRET",
+    ],
+  },
+  "vars": {
+    "GLO_AI_GATEWAY_ID": "default",
+    "GLO_AI_MODEL": "@cf/moonshotai/kimi-k2.7-code",
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "class_name": "GloOperationsAgent",
+        "name": "GloOperationsAgent",
+      },
+    ],
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["GloOperationsAgent"],
+    },
+  ],
+}

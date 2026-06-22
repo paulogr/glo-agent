@@ -1,0 +1,21 @@
+{
+  "name": "glo-agent",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "check": "tsc -b --pretty false",
+    "types": "wrangler types"
+  },
+  "packageManager": "pnpm@11.3.0",
+  "dependencies": {
+    "agents": "^0.16.2",
+    "hono": "^4.12.26",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "typescript": "^6.0.3",
+    "wrangler": "^4.103.0"
+  }
+}
