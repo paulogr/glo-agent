@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "glo",
-  "main": "index.ts",
+  "main": "./src/index.ts",
   "compatibility_date": "2026-06-18",
   "compatibility_flags": ["nodejs_compat"],
   "ai": {
@@ -23,6 +23,7 @@
       "binding": "DB",
       "database_name": "glo",
       "database_id": "0a128cc1-fc2e-42dd-a518-b95bb364ee48",
+      "migrations_dir": "./scripts/migrations",
     },
   ],
   "durable_objects": {

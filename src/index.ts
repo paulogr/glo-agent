@@ -1,5 +1,5 @@
 import { routeAgentRequest } from "agents";
-import { api } from "./api";
+import { api } from "@routes";
 
 export default {
   async fetch(request, env, ctx): Promise<Response> {

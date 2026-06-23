@@ -6,7 +6,7 @@
     "dev": "wrangler dev",
     "check": "tsc -b --pretty false",
     "types": "wrangler types",
-    "seed": "wrangler d1 execute glo --file='./seed.sql'"
+    "seed": "wrangler d1 execute glo --file='./scripts/seed.sql'"
   },
   "packageManager": "pnpm@11.3.0",
   "dependencies": {
