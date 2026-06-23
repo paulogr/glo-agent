@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
+    "test": "vitest",
     "check": "tsc -b --pretty false",
     "types": "wrangler types",
     "seed": "wrangler d1 execute glo --file='./scripts/seed.sql'"
@@ -17,8 +18,10 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.16.18",
     "@types/node": "^26.0.0",
     "typescript": "^6.0.3",
+    "vitest": "^4.1.9",
     "wrangler": "^4.103.0"
   }
 }

@@ -1,7 +1,7 @@
 import { Agent } from "agents";
 import { createWorkersAI, type WorkersAI } from "workers-ai-provider";
 import { generateText, stepCountIs, type ModelMessage } from "ai";
-import { tools } from "./tools";
+import { tools } from "@tools";
 
 export class AiEnabledAgent extends Agent<Env> {
   #ai?: WorkersAI;

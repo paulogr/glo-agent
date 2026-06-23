@@ -113,9 +113,10 @@
     "skipLibCheck": true /* Skip type checking all .d.ts files. */,
     "tsBuildInfoFile": "./node_modules/.cache/tsconfig.tsbuildinfo",
     "paths": {
-      "@types": ["./src/types.ts"],
-      "@db": ["./src/db.ts"],
       "@routes": ["./src/routes/index.ts"],
+      "@tools": ["./src/tools/index.ts"],
+      "@db": ["./src/db.ts"],
+      "@types": ["./src/types.ts"],
     },
   },
   "include": ["./worker-configuration.d.ts", "./src/**/*.ts"],
