@@ -9,4 +9,4 @@ export default {
   },
 } satisfies ExportedHandler<Env>;
 
-export { GloOperationsAgent } from "./agent";
+export { GloOperationsSlackAgent } from "./agent";

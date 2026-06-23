@@ -1,9 +1,14 @@
-import { Agent } from "agents";
+import type { ModelMessage } from "ai";
+import { AiEnabledAgent } from "./ai";
 import { slackMessageSchema, type SlackMessage } from "./types";
 
 const SLACK_TOKEN_STORAGE_KEY = "access_token";
+const SYSTEM_PROMPT = `
+You are GLO Operations Agent, an internal operations assistant. Keep answers concise.
+For now, discuss tasks and ask clarifying questions; do not claim that external tools have run.
+`;
 
-export class GloOperationsAgent extends Agent<Env> {
+export class GloOperationsSlackAgent extends AiEnabledAgent {
   userId?: string;
 
   get token() {
@@ -21,7 +26,7 @@ export class GloOperationsAgent extends Agent<Env> {
       headers: { Authorization: `Bearer ${this.token}` },
     });
     const data = await response.json<{ user_id?: string }>();
-    this.userId = data.user_id;
+    return (this.userId ??= data.user_id);
   }
 
   private async fetchThread(channel: string, ts: string) {
@@ -41,27 +46,39 @@ export class GloOperationsAgent extends Agent<Env> {
     return data.messages.sort((a, b) => Number(a.ts) - Number(b.ts));
   }
 
-  private async threadHasBotReply(messages: SlackMessage[]) {
-    const userId = await this.getUserId();
-    return messages.some((m) => m.user === userId);
+  private sendMessage(
+    text: string,
+    opts: { channel: string; thread_ts?: string },
+  ) {
+    return fetch("https://slack.com/api/chat.postMessage", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${this.token}`,
+        "Content-Type": "application/json; charset=utf-8",
+      },
+      body: JSON.stringify({ text, ...opts }),
+    });
   }
 
   async onSlackEvent(event: SlackMessage) {
     const result = slackMessageSchema.safeParse(event);
-    if (!result.success) {
-      return;
-    }
+    if (!result.success) return;
     const data = result.data;
-    const messages = await this.fetchThread(
-      data.channel,
-      data.thread_ts ?? data.ts,
-    );
+    const rootTs = data.thread_ts ?? data.ts;
+    const messages = await this.fetchThread(data.channel, rootTs);
+    const userId = await this.getUserId();
     if (
-      !data.text.includes(`<@${await this.getUserId()}`) &&
-      !(await this.threadHasBotReply(messages))
+      !data.text.includes(`<@${userId}`) &&
+      !messages.some((m) => m.user === userId)
     ) {
       return;
     }
-    console.log(JSON.stringify(messages));
+    const context: ModelMessage[] = messages.map((m) => {
+      const role = m.user === userId ? "assistant" : "user";
+      const content = m.text.replace(/<@([A-Z0-9]+)/g, "@$1");
+      return { role, content };
+    });
+    const content = await this.generateAiReply(context, SYSTEM_PROMPT);
+    this.sendMessage(content, { channel: data.channel, thread_ts: rootTs });
   }
 }

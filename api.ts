@@ -56,7 +56,10 @@ api.get("/slack/accept", async (c) => {
     return c.text("failed to get token");
   }
 
-  const agent = await getAgentByName(c.env.GloOperationsAgent, data.team.id);
+  const agent = await getAgentByName(
+    c.env.GloOperationsSlackAgent,
+    data.team.id,
+  );
   await agent.init(data.access_token);
 
   return c.text("registered");
@@ -71,10 +74,13 @@ api.post("/slack", async (c) => {
     challenge?: string;
   };
   if (body.type === "url_verification") {
-    console.error("[slack event] url verification");
+    console.log("[slack event] url verification");
     return c.json({ challenge: body.challenge });
   }
-  const agent = await getAgentByName(c.env.GloOperationsAgent, body.team_id);
+  const agent = await getAgentByName(
+    c.env.GloOperationsSlackAgent,
+    body.team_id,
+  );
   c.executionCtx.waitUntil(agent.onSlackEvent(body.event));
   return c.text("event received", 200);
 });

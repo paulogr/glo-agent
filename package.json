@@ -10,7 +10,9 @@
   "packageManager": "pnpm@11.3.0",
   "dependencies": {
     "agents": "^0.16.2",
+    "ai": "^6.0.208",
     "hono": "^4.12.26",
+    "workers-ai-provider": "^3.2.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {

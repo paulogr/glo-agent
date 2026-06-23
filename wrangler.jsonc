@@ -21,15 +21,15 @@
   "durable_objects": {
     "bindings": [
       {
-        "class_name": "GloOperationsAgent",
-        "name": "GloOperationsAgent",
+        "class_name": "GloOperationsSlackAgent",
+        "name": "GloOperationsSlackAgent",
       },
     ],
   },
   "migrations": [
     {
       "tag": "v1",
-      "new_sqlite_classes": ["GloOperationsAgent"],
+      "new_sqlite_classes": ["GloOperationsSlackAgent"],
     },
   ],
 }
