@@ -24,7 +24,6 @@ api.get("/slack/accept", async (c) => {
   const code = url.searchParams.get("code");
 
   if (!code) {
-    console.error("[slack accept]: missing code");
     return c.text("missing code");
   }
 
@@ -74,7 +73,6 @@ api.post("/slack", async (c) => {
     challenge?: string;
   };
   if (body.type === "url_verification") {
-    console.log("[slack event] url verification");
     return c.json({ challenge: body.challenge });
   }
   const agent = await getAgentByName(
