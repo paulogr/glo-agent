@@ -68,7 +68,7 @@ export class GloOperationsSlackAgent extends AiEnabledAgent {
     const messages = await this.fetchThread(data.channel, rootTs);
     const userId = await this.getUserId();
     if (
-      !data.text.includes(`<@${userId}`) &&
+      !data.text.includes(`<@${userId}>`) &&
       !messages.some((m) => m.user === userId)
     ) {
       return;

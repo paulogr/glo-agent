@@ -1,6 +1,7 @@
 import { Agent } from "agents";
 import { createWorkersAI, type WorkersAI } from "workers-ai-provider";
-import { generateText, type ModelMessage } from "ai";
+import { generateText, stepCountIs, type ModelMessage } from "ai";
+import { tools } from "./tools";
 
 export class AiEnabledAgent extends Agent<Env> {
   #ai?: WorkersAI;
@@ -17,6 +18,8 @@ export class AiEnabledAgent extends Agent<Env> {
       model: this.model(this.env.GLO_AI_MODEL),
       system: systemPrompt,
       messages,
+      tools,
+      stopWhen: stepCountIs(5),
     });
     return result.text;
   }
