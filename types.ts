@@ -21,13 +21,19 @@ export const storeSchema = z.object({
 });
 
 export const platformAppSchema = z.object({
-  id: z.string(),
+  id: z.number(),
   storeId: z.string(),
   platformId: z.string(),
   clientId: z.string(),
   clientSecret: z.string(),
 });
 
+export const platformAccessSchema = z.object({
+  accessToken: z.string(),
+  refreshToken: z.string(),
+});
+
 export type SlackMessage = z.infer<typeof slackMessageSchema>;
 export type Store = z.infer<typeof storeSchema>;
 export type PlatformApp = z.infer<typeof platformAppSchema>;
+export type PlatformAccess = z.infer<typeof platformAccessSchema>;
