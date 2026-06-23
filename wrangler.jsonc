@@ -18,6 +18,13 @@
     "GLO_AI_GATEWAY_ID": "default",
     "GLO_AI_MODEL": "@cf/moonshotai/kimi-k2.7-code",
   },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "glo",
+      "database_id": "0a128cc1-fc2e-42dd-a518-b95bb364ee48",
+    },
+  ],
   "durable_objects": {
     "bindings": [
       {

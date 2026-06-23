@@ -1,29 +1,35 @@
 import { tool as defineTool } from "ai";
 import { z } from "zod";
+import { CLIENT_STORES } from "./stores";
 
-const getWeather = defineTool({
-  description: "Retorna informações sobre o tempo em uma determinada cidade",
-  inputSchema: z.object({ city: z.string() }),
-  outputSchema: z.object({
-    condition: z.string().describe("Condição geral do tempo"),
-    temperature: z.object({
-      actual: z.string().describe("Temperatura atual"),
-      feels: z.string().describe("Sensação térmica"),
-      high: z.string().describe("Temperatura máxima"),
-      low: z.string().describe("Temperatura mínima"),
-    }),
-    wind: z.string(),
-  }),
-  async execute({ city }) {
-    const response = await fetch(
-      `https://wttr.in/${city}?format=%C|%t|%f|%H|%L%w`,
-    );
-    const result = await response.text();
-    const [condition, actual, feels, high, low, wind] = result.split("|");
-    return { condition, temperature: { actual, feels, high, low }, wind };
+const prepareBlingSalesOrder = defineTool({
+  description:
+    "Prepare manual bling sales orders extracted from a Slack conversation",
+  inputSchema: z
+    .object({
+      store: z.enum(Object.keys(CLIENT_STORES)),
+      customer: z.object({
+        name: z.string(),
+        document: z.string(),
+        email: z.string(),
+        cep: z.string(),
+        address: z.string(),
+      }),
+      items: z.array(
+        z.object({
+          name: z.string(),
+          quantity: z.number(),
+          price: z.number(),
+          attributes: z.record(z.string(), z.string()),
+        }),
+      ),
+    })
+    .superRefine((data) => {}),
+  execute(data) {
+    console.log(data);
   },
 });
 
 export const tools = {
-  getWeather,
+  prepareBlingSalesOrder,
 };

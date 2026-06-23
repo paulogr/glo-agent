@@ -1,6 +1,6 @@
 import { Hono, type HonoRequest } from "hono";
 import { getAgentByName } from "agents";
-import type { AppBindings, SlackMessage } from "./types.ts";
+import type { AppBindings, SlackMessage } from "@types";
 
 const SLACK_SCOPES = ["chat:write", "channels:history"];
 
@@ -9,9 +9,9 @@ function getSlackRedirectUri(request: HonoRequest): string {
   return `https://${url.host}/api/slack/accept`;
 }
 
-export const api = new Hono<AppBindings>().basePath("api");
+const slack = new Hono<AppBindings>();
 
-api.get("/slack/install", (c) => {
+slack.get("install", (c) => {
   const url = new URL("https://slack.com/oauth/v2/authorize");
   url.searchParams.set("client_id", c.env.SLACK_CLIENT_ID);
   url.searchParams.set("scope", SLACK_SCOPES.join(","));
@@ -19,7 +19,7 @@ api.get("/slack/install", (c) => {
   return c.redirect(url.toString(), 302);
 });
 
-api.get("/slack/accept", async (c) => {
+slack.get("accept", async (c) => {
   const url = new URL(c.req.url);
   const code = url.searchParams.get("code");
 
@@ -61,10 +61,10 @@ api.get("/slack/accept", async (c) => {
   );
   await agent.init(data.access_token);
 
-  return c.text("registered");
+  return c.text("ok");
 });
 
-api.post("/slack", async (c) => {
+slack.post("slack", async (c) => {
   const raw = await c.req.text();
   const body = JSON.parse(raw) as {
     type: string;
@@ -80,5 +80,7 @@ api.post("/slack", async (c) => {
     body.team_id,
   );
   c.executionCtx.waitUntil(agent.onSlackEvent(body.event));
-  return c.text("event received", 200);
+  return c.text("ok");
 });
+
+export { slack };

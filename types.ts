@@ -15,4 +15,19 @@ export const slackMessageSchema = z.object({
   user: z.string(),
 });
 
+export const storeSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+});
+
+export const platformAppSchema = z.object({
+  id: z.string(),
+  storeId: z.string(),
+  platformId: z.string(),
+  clientId: z.string(),
+  clientSecret: z.string(),
+});
+
 export type SlackMessage = z.infer<typeof slackMessageSchema>;
+export type Store = z.infer<typeof storeSchema>;
+export type PlatformApp = z.infer<typeof platformAppSchema>;

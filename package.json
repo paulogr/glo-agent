@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "wrangler dev",
     "check": "tsc -b --pretty false",
-    "types": "wrangler types"
+    "types": "wrangler types",
+    "seed": "wrangler d1 execute glo --file='./seed.sql'"
   },
   "packageManager": "pnpm@11.3.0",
   "dependencies": {
