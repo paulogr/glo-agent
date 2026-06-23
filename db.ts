@@ -32,6 +32,10 @@ const access = {
       `
       INSERT INTO platform_access (store_id, platform_app_id, access_token, refresh_token)
       VALUES (?, ?, ?, ?)
+      ON CONFLICT(store_id, platform_app_id)
+      DO UPDATE SET
+        access_token = excluded.access_token,
+        refresh_token = excluded.refresh_token
     `,
     ).bind(storeId, appId, accessToken, refreshToken);
     return prepare.run();
