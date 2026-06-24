@@ -2,9 +2,8 @@ import { tool as defineTool } from "ai";
 import { z } from "zod";
 import { CLIENT_STORES } from "../stores";
 
-const prepareBlingSalesOrder = defineTool({
-  description:
-    "Prepare manual Bling sales orders extracted from a Slack conversation",
+const createBlingSalesOrder = defineTool({
+  description: "Whem the user asks for creating a manual Bling sales orders",
   inputSchema: z.object({
     store: z.enum(Object.keys(CLIENT_STORES)),
     customer: z.object({
@@ -29,6 +28,6 @@ const prepareBlingSalesOrder = defineTool({
   },
 });
 
-export default {
-  prepareBlingSalesOrder,
+export const bling = {
+  createBlingSalesOrder,
 };
