@@ -13,14 +13,13 @@ export class AiEnabledAgent extends Agent<Env> {
     }));
   }
 
-  async generateAiReply(messages: ModelMessage[], systemPrompt: string) {
-    const result = await generateText({
+  public async generateAiReply(messages: ModelMessage[], systemPrompt: string) {
+    return generateText({
       model: this.model(this.env.GLO_AI_MODEL),
       system: systemPrompt,
       messages,
       tools,
       stopWhen: stepCountIs(5),
     });
-    return result.text;
   }
 }

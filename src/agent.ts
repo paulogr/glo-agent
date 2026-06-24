@@ -3,7 +3,7 @@ import { AiEnabledAgent } from "./ai";
 import { slackMessageSchema, type SlackMessage } from "./types";
 
 const SLACK_TOKEN_STORAGE_KEY = "access_token";
-const SYSTEM_PROMPT = `
+export const SYSTEM_PROMPT = `
 You are GLO Operations Agent, an internal operations assistant. Keep answers concise.
 For now, discuss tasks and ask clarifying questions; do not claim that external tools have run.
 `;
@@ -79,6 +79,9 @@ export class GloOperationsSlackAgent extends AiEnabledAgent {
       return { role, content };
     });
     const content = await this.generateAiReply(context, SYSTEM_PROMPT);
-    this.sendMessage(content, { channel: data.channel, thread_ts: rootTs });
+    this.sendMessage(content.text, {
+      channel: data.channel,
+      thread_ts: rootTs,
+    });
   }
 }
