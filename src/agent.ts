@@ -1,7 +1,13 @@
 import { WebClient } from "@slack/web-api";
 import type { ModelMessage } from "ai";
 import { AiEnabledAgent } from "./ai";
-import { slackMessageSchema, type SlackMessage } from "./types";
+import {
+  slackBlockInteractionEventSchema,
+  slackMessageEventSchema,
+  type SlackBlockInteractionEvent,
+  type SlackEvent,
+  type SlackMessageEvent,
+} from "./types";
 
 const SLACK_TOKEN_STORAGE_KEY = "access_token";
 
@@ -48,10 +54,18 @@ export class GloOperationsSlackAgent extends AiEnabledAgent {
     return this.slack.chat.postMessage({ text, ...opts });
   }
 
-  async onSlackEvent(event: SlackMessage) {
-    const result = slackMessageSchema.safeParse(event);
-    if (!result.success) return;
-    const data = result.data;
+  async onSlackEvent(event: SlackEvent) {
+    if (event.type === "message") {
+      return this.handleMessageEvent(event);
+    } else if (event.type === "block_actions") {
+      return this.handleBlockActionsEvent(event);
+    }
+  }
+
+  async handleMessageEvent(event: SlackMessageEvent) {
+    const parsed = slackMessageEventSchema.safeParse(event);
+    if (!parsed.success) return;
+    const data = parsed.data;
     const rootTs = data.thread_ts ?? data.ts;
     const messages = await this.fetchThread(data.channel, rootTs);
     const userId = await this.getUserId();
@@ -66,10 +80,15 @@ export class GloOperationsSlackAgent extends AiEnabledAgent {
       const content = m.text!.replace(/<@([A-Z0-9]+)/g, "@$1");
       return { role, content };
     });
-    const content = await this.generateAiReply(context, SYSTEM_PROMPT);
-    await this.sendMessage(content.text, {
+    const result = await this.generateAiReply(context, SYSTEM_PROMPT);
+    await this.sendMessage(result.text, {
       channel: data.channel,
       thread_ts: rootTs,
     });
+  }
+
+  async handleBlockActionsEvent(event: SlackBlockInteractionEvent) {
+    const parsed = slackBlockInteractionEventSchema.safeParse(event);
+    if (!parsed.success) return;
   }
 }

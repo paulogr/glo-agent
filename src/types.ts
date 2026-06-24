@@ -4,7 +4,7 @@ export type AppBindings = {
   Bindings: Env;
 };
 
-export const slackMessageSchema = z.object({
+export const slackMessageEventSchema = z.object({
   type: z.literal("message"),
   channel: z.string().regex(/^(?!D)./),
   text: z.string(),
@@ -14,6 +14,38 @@ export const slackMessageSchema = z.object({
   ts: z.string(),
   user: z.string(),
 });
+
+export const slackBlockInteractionEventSchema = z
+  .object({
+    type: z.literal("block_actions"),
+    team: z.object({
+      id: z.string(),
+    }),
+    user: z.object({
+      id: z.string(),
+    }),
+    channel: z.object({
+      id: z.string(),
+    }),
+    message: z.object({
+      ts: z.string(),
+      thread_ts: z.string().optional(),
+    }),
+    actions: z
+      .array(
+        z.object({
+          action_id: z.string(),
+          value: z.string(),
+        }),
+      )
+      .min(1),
+  })
+  .loose();
+
+export const slackEventSchema = z.union([
+  slackMessageEventSchema,
+  slackBlockInteractionEventSchema,
+]);
 
 export const storeSchema = z.object({
   id: z.string(),
@@ -33,7 +65,11 @@ export const platformAccessSchema = z.object({
   refreshToken: z.string(),
 });
 
-export type SlackMessage = z.infer<typeof slackMessageSchema>;
+export type SlackEvent = z.infer<typeof slackEventSchema>;
+export type SlackMessageEvent = z.infer<typeof slackMessageEventSchema>;
+export type SlackBlockInteractionEvent = z.infer<
+  typeof slackBlockInteractionEventSchema
+>;
 export type Store = z.infer<typeof storeSchema>;
 export type PlatformApp = z.infer<typeof platformAppSchema>;
 export type PlatformAccess = z.infer<typeof platformAccessSchema>;

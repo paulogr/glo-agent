@@ -1,7 +1,11 @@
 import { WebClient } from "@slack/web-api";
 import { Hono, type HonoRequest } from "hono";
 import { getAgentByName } from "agents";
-import type { AppBindings, SlackMessage } from "@types";
+import type {
+  AppBindings,
+  SlackBlockInteractionEvent,
+  SlackEvent,
+} from "@types";
 
 const SLACK_SCOPES = ["chat:write", "channels:history"];
 
@@ -51,12 +55,25 @@ slack.get("accept", async (c) => {
   return c.text("ok");
 });
 
+slack.post("interactions", async (c) => {
+  const form = await c.req.formData();
+  const event = JSON.parse(
+    form.get("payload") as string,
+  ) as SlackBlockInteractionEvent;
+  const agent = await getAgentByName(
+    c.env.GloOperationsSlackAgent,
+    event.team.id,
+  );
+  c.executionCtx.waitUntil(agent.onSlackEvent(event));
+  return c.text("ok");
+});
+
 slack.post("/", async (c) => {
   const raw = await c.req.text();
   const body = JSON.parse(raw) as {
     type: string;
     team_id: string;
-    event: SlackMessage;
+    event: SlackEvent;
     challenge?: string;
   };
   if (body.type === "url_verification") {
