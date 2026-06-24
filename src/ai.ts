@@ -2,6 +2,7 @@ import { Agent } from "agents";
 import { createWorkersAI, type WorkersAI } from "workers-ai-provider";
 import { generateText, stepCountIs, type ModelMessage } from "ai";
 import { tools } from "@tools";
+import type { MistralLanguageModelOptions } from "@ai-sdk/mistral";
 
 export class AiEnabledAgent extends Agent<Env> {
   #ai?: WorkersAI;
@@ -20,6 +21,11 @@ export class AiEnabledAgent extends Agent<Env> {
       messages,
       tools,
       stopWhen: stepCountIs(5),
+      providerOptions: {
+        mistral: {
+          reasoningEffort: "none",
+        } satisfies MistralLanguageModelOptions,
+      },
     });
   }
 }

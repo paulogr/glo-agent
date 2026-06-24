@@ -4,7 +4,7 @@ import { CLIENT_STORES } from "../stores";
 
 const prepareBlingSalesOrder = defineTool({
   description:
-    "Prepare manual bling sales orders extracted from a Slack conversation",
+    "Prepare manual Bling sales orders extracted from a Slack conversation",
   inputSchema: z.object({
     store: z.enum(Object.keys(CLIENT_STORES)),
     customer: z.object({
@@ -26,7 +26,6 @@ const prepareBlingSalesOrder = defineTool({
   needsApproval: true,
   execute(data) {
     console.log(data);
-    return { prepared: true, data };
   },
 });
 

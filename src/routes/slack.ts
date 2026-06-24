@@ -64,7 +64,7 @@ slack.get("accept", async (c) => {
   return c.text("ok");
 });
 
-slack.post("slack", async (c) => {
+slack.post("/", async (c) => {
   const raw = await c.req.text();
   const body = JSON.parse(raw) as {
     type: string;
