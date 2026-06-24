@@ -1,5 +1,4 @@
 import { WebClient } from "@slack/web-api";
-import type { ModelMessage } from "ai";
 import { AiEnabledAgent } from "./ai";
 import {
   slackBlockInteractionEventSchema,
@@ -36,17 +35,6 @@ export class GloOperationsSlackAgent extends AiEnabledAgent {
     return (this.userId ??= data.user_id);
   }
 
-  private async fetchThread(channel: string, ts: string) {
-    const data = await this.slack.conversations.replies({
-      channel,
-      ts,
-      limit: 1000,
-      inclusive: true,
-    });
-
-    return data.messages!.sort((a, b) => Number(a.ts) - Number(b.ts));
-  }
-
   private sendMessage(
     text: string,
     opts: { channel: string; thread_ts?: string },
@@ -67,20 +55,40 @@ export class GloOperationsSlackAgent extends AiEnabledAgent {
     if (!parsed.success) return;
     const data = parsed.data;
     const rootTs = data.thread_ts ?? data.ts;
-    const messages = await this.fetchThread(data.channel, rootTs);
+    const thread = this.getThreadRef(data.channel, rootTs);
     const userId = await this.getUserId();
+
+    let context = this.loadThreadMessages(thread.id);
+
     if (
       !data.text.includes(`<@${userId}>`) &&
-      !messages.some((m) => m.user === userId)
+      !context.some((m) => m.role === "assistant")
     ) {
       return;
     }
-    const context: ModelMessage[] = messages.map((m) => {
-      const role = m.user === userId ? "assistant" : "user";
-      const content = m.text!.replace(/<@([A-Z0-9]+)/g, "@$1");
-      return { role, content };
-    });
+
+    this.appendThreadMessages(thread, [
+      {
+        externalId: `user:${data.ts}`,
+        message: {
+          role: "user",
+          content: data.text.replace(/<@([A-Z0-9]+)/g, "@$1"),
+        },
+      },
+    ]);
+
+    context = this.loadThreadMessages(thread.id);
+
     const result = await this.generateAiReply(context, SYSTEM_PROMPT);
+
+    this.appendThreadMessages(
+      thread,
+      result.response.messages.map((message, index) => ({
+        externalId: `${message.role}:${result.response.id}:${index}`,
+        message,
+      })),
+    );
+
     await this.sendMessage(result.text, {
       channel: data.channel,
       thread_ts: rootTs,
