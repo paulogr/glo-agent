@@ -21,7 +21,7 @@ describe("tool calling", () => {
   // });
   it("request approval before executing prepareBlingSalesOrder and then approves", async () => {
     const EXPECTED_BLING_TOOL_NAME = "prepareBlingSalesOrder";
-    const agent = env.GloOperationsSlackAgent.getByName("tool-approval-e2e");
+    const agent = env.GloOperationsAgent.getByName("tool-approval-e2e");
     const messages: ModelMessage[] = [
       {
         role: "user",
@@ -33,7 +33,7 @@ describe("tool calling", () => {
       },
     ];
     const first = await runInDurableObject(agent, (instance) =>
-      instance.generateAiReply(messages, SYSTEM_PROMPT),
+      instance.generateAiReply(messages),
     );
     const approval = first.content.find(
       (p) =>
@@ -56,7 +56,7 @@ describe("tool calling", () => {
       ],
     });
     const second = await runInDurableObject(agent, (instance) =>
-      instance.generateAiReply(messages, SYSTEM_PROMPT),
+      instance.generateAiReply(messages),
     );
     expect(
       second.response.messages.some(

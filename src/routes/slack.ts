@@ -45,12 +45,7 @@ slack.get("accept", async (c) => {
     return c.text("failed to get token");
   }
 
-  const agent = await getAgentByName(
-    c.env.GloOperationsSlackAgent,
-    data.team.id,
-  );
-
-  agent.init(data.access_token);
+  console.log(data.access_token);
 
   return c.text("ok");
 });
@@ -60,10 +55,7 @@ slack.post("interactions", async (c) => {
   const event = JSON.parse(
     form.get("payload") as string,
   ) as SlackBlockInteractionEvent;
-  const agent = await getAgentByName(
-    c.env.GloOperationsSlackAgent,
-    event.team.id,
-  );
+  const agent = await getAgentByName(c.env.GloOperationsAgent, event.team.id);
   c.executionCtx.waitUntil(agent.onSlackEvent(event));
   return c.text("ok");
 });
@@ -79,10 +71,7 @@ slack.post("/", async (c) => {
   if (body.type === "url_verification") {
     return c.json({ challenge: body.challenge });
   }
-  const agent = await getAgentByName(
-    c.env.GloOperationsSlackAgent,
-    body.team_id,
-  );
+  const agent = await getAgentByName(c.env.GloOperationsAgent, body.team_id);
   c.executionCtx.waitUntil(agent.onSlackEvent(body.event));
   return c.text("ok");
 });

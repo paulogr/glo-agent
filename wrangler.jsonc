@@ -12,6 +12,7 @@
       "SLACK_CLIENT_ID",
       "SLACK_CLIENT_SECRET",
       "SLACK_SIGNING_SECRET",
+      "SLACK_APP_TOKEN",
     ],
   },
   "vars": {
@@ -29,15 +30,15 @@
   "durable_objects": {
     "bindings": [
       {
-        "class_name": "GloOperationsSlackAgent",
-        "name": "GloOperationsSlackAgent",
+        "class_name": "GloOperationsAgent",
+        "name": "GloOperationsAgent",
       },
     ],
   },
   "migrations": [
     {
       "tag": "v1",
-      "new_sqlite_classes": ["GloOperationsSlackAgent"],
+      "new_sqlite_classes": ["GloOperationsAgent"],
     },
   ],
 }
