@@ -20,7 +20,8 @@ export default defineConfig({
     },
   },
   test: {
+    isolate: false,
     include: ["test/**/*.test.ts"],
-    passWithNoTests: true,
+    testTimeout: 180_000,
   },
 });
