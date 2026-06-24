@@ -1,3 +1,4 @@
+import { WebClient } from "@slack/web-api";
 import { Hono, type HonoRequest } from "hono";
 import { getAgentByName } from "agents";
 import type { AppBindings, SlackMessage } from "@types";
@@ -15,7 +16,7 @@ slack.get("install", (c) => {
   const url = new URL("https://slack.com/oauth/v2/authorize");
   url.searchParams.set("client_id", c.env.SLACK_CLIENT_ID);
   url.searchParams.set("scope", SLACK_SCOPES.join(","));
-  url.searchParams.set("redirect_url", getSlackRedirectUri(c.req));
+  url.searchParams.set("redirect_uri", getSlackRedirectUri(c.req));
   return c.redirect(url.toString(), 302);
 });
 
@@ -27,31 +28,16 @@ slack.get("accept", async (c) => {
     return c.text("missing code");
   }
 
-  const form = new FormData();
-  form.append("code", code);
-  form.append("client_id", c.env.SLACK_CLIENT_ID);
-  form.append("client_secret", c.env.SLACK_CLIENT_SECRET);
-  form.append("redirect_uri", getSlackRedirectUri(c.req));
-
-  const response = await fetch("https://slack.com/api/oauth.v2.access", {
-    method: "POST",
-    body: form,
+  const client = new WebClient();
+  const data = await client.oauth.v2.access({
+    code,
+    client_id: c.env.SLACK_CLIENT_ID,
+    client_secret: c.env.SLACK_CLIENT_SECRET,
+    redirect_uri: getSlackRedirectUri(c.req),
   });
 
-  const data = await response.json<
-    | {
-        ok: true;
-        team: { id: string };
-        access_token: string;
-      }
-    | {
-        ok: false;
-        error: string;
-      }
-  >();
-
-  if (!data.ok) {
-    console.error(`[slack accept] ${data.error}`);
+  if (!data.ok || !data.team?.id || !data.access_token) {
+    console.error(`[slack accept] ${data.error ?? "missing oauth data"}`);
     return c.text("failed to get token");
   }
 
@@ -59,7 +45,8 @@ slack.get("accept", async (c) => {
     c.env.GloOperationsSlackAgent,
     data.team.id,
   );
-  await agent.init(data.access_token);
+
+  agent.init(data.access_token);
 
   return c.text("ok");
 });

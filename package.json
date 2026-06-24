@@ -12,6 +12,8 @@
   },
   "packageManager": "pnpm@11.8.0",
   "dependencies": {
+    "@ai-sdk/mistral": "^3.0.40",
+    "@slack/web-api": "^7.17.0",
     "agents": "^0.16.2",
     "ai": "^6.0.208",
     "hono": "^4.12.26",
