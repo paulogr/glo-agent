@@ -10,7 +10,7 @@
     "types": "wrangler types",
     "seed": "wrangler d1 execute glo --file='./scripts/seed.sql'"
   },
-  "packageManager": "pnpm@11.3.0",
+  "packageManager": "pnpm@11.8.0",
   "dependencies": {
     "agents": "^0.16.2",
     "ai": "^6.0.208",
