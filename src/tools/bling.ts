@@ -23,8 +23,10 @@ const prepareBlingSalesOrder = defineTool({
       }),
     ),
   }),
+  needsApproval: true,
   execute(data) {
     console.log(data);
+    return { prepared: true, data };
   },
 });
 

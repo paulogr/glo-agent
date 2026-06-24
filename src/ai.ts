@@ -13,13 +13,18 @@ export class AiEnabledAgent extends Agent<Env> {
     }));
   }
 
-  public async generateAiReply(messages: ModelMessage[], systemPrompt: string) {
+  public async generateAiReply(
+    messages: ModelMessage[],
+    systemPrompt: string,
+    options?: Pick<Parameters<typeof generateText<typeof tools>>[0], "toolChoice">,
+  ) {
     return generateText({
       model: this.model(this.env.GLO_AI_MODEL),
       system: systemPrompt,
       messages,
       tools,
       stopWhen: stepCountIs(5),
+      ...options,
     });
   }
 }

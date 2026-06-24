@@ -113,6 +113,7 @@
     "skipLibCheck": true /* Skip type checking all .d.ts files. */,
     "tsBuildInfoFile": "./node_modules/.cache/tsconfig.tsbuildinfo",
     "paths": {
+      "@agent": ["./src/agent.ts"],
       "@routes": ["./src/routes/index.ts"],
       "@tools": ["./src/tools/index.ts"],
       "@db": ["./src/db.ts"],

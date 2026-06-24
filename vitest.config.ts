@@ -10,6 +10,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
+      "@agent": fileURLToPath(new URL("./src/agent.ts", import.meta.url)),
       "@routes": fileURLToPath(
         new URL("./src/routes/index.ts", import.meta.url),
       ),

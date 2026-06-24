@@ -6,6 +6,7 @@
     "dev": "wrangler dev",
     "test": "vitest",
     "check": "tsc -b --pretty false",
+    "check:test": "tsc -b test/tsconfig.json --pretty false",
     "types": "wrangler types",
     "seed": "wrangler d1 execute glo --file='./scripts/seed.sql'"
   },
