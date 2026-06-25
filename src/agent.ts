@@ -100,6 +100,7 @@ export class GloOperationsAgent extends BaseAgent {
   async handleMessageEvent(event: SlackMessageEvent) {
     const parsed = slackMessageEventSchema.safeParse(event);
     if (!parsed.success) return;
+
     const data = parsed.data;
     const rootTs = data.thread_ts ?? data.ts;
     const userId = await this.getUserId();
