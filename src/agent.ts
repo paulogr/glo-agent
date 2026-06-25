@@ -18,6 +18,17 @@ You are GLO Operations Agent, an internal operations assistant. Keep answers con
 For now, discuss tasks and ask clarifying questions; do not claim that external tools have run.
 `;
 
+type ThreadRef = {
+  id: string;
+  channel: string;
+  threadTs: string;
+};
+
+type ThreadMessageEntry = {
+  externalId: string;
+  message: ModelMessage;
+};
+
 abstract class BaseAgent extends Agent<Env> {
   async onStart() {
     this.sql`
@@ -47,6 +58,14 @@ abstract class BaseAgent extends Agent<Env> {
       CREATE INDEX IF NOT EXISTS idx_message_thread_id_id
       ON message(thread_id, id)
     `;
+  }
+
+  protected getThreadRef(channel: string, threadTs: string): ThreadRef {
+    return {
+      id: `${channel}:${threadTs}`,
+      channel,
+      threadTs,
+    };
   }
 }
 
@@ -84,9 +103,9 @@ export class GloOperationsAgent extends BaseAgent {
     const data = parsed.data;
     const rootTs = data.thread_ts ?? data.ts;
     const userId = await this.getUserId();
-    const threadId = `${data.channel}:${rootTs}`;
+    const threadRef = this.getThreadRef(data.channel, rootTs);
 
-    let context = this.loadThreadMessages(threadId);
+    let context = this.loadThreadMessages(threadRef.id);
 
     if (
       !data.text.includes(`<@${userId}>`) &&
@@ -95,7 +114,7 @@ export class GloOperationsAgent extends BaseAgent {
       return;
     }
 
-    this.appendThreadMessages(data.channel, rootTs, [
+    this.appendThreadMessages(threadRef, [
       {
         externalId: `user:${data.ts}`,
         message: {
@@ -105,13 +124,12 @@ export class GloOperationsAgent extends BaseAgent {
       },
     ]);
 
-    context = this.loadThreadMessages(threadId);
+    context = this.loadThreadMessages(threadRef.id);
 
     const result = await this.generateAiReply(context);
 
     this.appendThreadMessages(
-      data.channel,
-      rootTs,
+      threadRef,
       result.response.messages.map((message, index) => ({
         externalId: `${message.role}:${result.response.id}:${index}`,
         message,
@@ -152,18 +170,10 @@ export class GloOperationsAgent extends BaseAgent {
       WHERE thread_id = ${threadId}
       ORDER BY id ASC
     `;
-
     return rows.map((row) => JSON.parse(row.message_json) as ModelMessage);
   }
 
-  appendThreadMessages(
-    channel: string,
-    threadTs: string,
-    entries: {
-      externalId: string;
-      message: ModelMessage;
-    }[],
-  ) {
+  appendThreadMessages(threadRef: ThreadRef, entries: ThreadMessageEntry[]) {
     if (entries.length === 0) return;
     const createdAt = Date.now();
     this.ctx.storage.transactionSync(() => {
@@ -174,9 +184,9 @@ export class GloOperationsAgent extends BaseAgent {
           channel = excluded.channel,
           thread_ts = excluded.thread_ts,
           updated_at = excluded.updated_at`,
-        `${channel}:${threadTs}`,
-        channel,
-        threadTs,
+        threadRef.id,
+        threadRef.channel,
+        threadRef.threadTs,
         createdAt,
         createdAt,
       );
@@ -185,7 +195,7 @@ export class GloOperationsAgent extends BaseAgent {
           `INSERT OR IGNORE INTO message
             (thread_id, external_id, message_json, created_at)
           VALUES (?, ?, ?, ?)`,
-          `${channel}:${threadTs}`,
+          threadRef.id,
           entry.externalId,
           JSON.stringify(entry.message),
           createdAt,
