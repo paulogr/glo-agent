@@ -2,7 +2,6 @@ import { env } from "cloudflare:workers";
 import { describe, it, expect } from "vitest";
 import { runInDurableObject } from "cloudflare:test";
 import type { ModelMessage } from "ai";
-import { SYSTEM_PROMPT } from "@agent";
 
 describe("tool calling", () => {
   // it("calls prepareBlingSalesOrder tool for a sales order creation prompt", async () => {
